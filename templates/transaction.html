@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>入出庫フォーム</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<h1 style="text-align:center;">入出庫登録</h1>
+<form method="post">
+  <label>ユーザー:</label>
+  <select name="user_id">
+    {% for user in users %}
+      <option value="{{ user.UserID }}">{{ user.UserName }}</option>
+    {% endfor %}
+  </select>
+
+  <label>品目:</label>
+  <select name="product_id">
+    {% for product in products %}
+      <option value="{{ product.ProductID }}">{{ product.ItemName }}</option>
+    {% endfor %}
+  </select>
+
+  <label>区分:</label>
+  <select name="transaction_type">
+    {% for type in types %}
+      <option value="{{ type.TransactionTypeID }}">{{ type.TransactionTypeName }}</option>
+    {% endfor %}
+  </select>
+
+  <label>数量:</label>
+  <input type="number" name="quantity">
+
+  <button type="submit">登録</button>
+</form>
+
+<div style="text-align:center;">
+  <a href="/">在庫一覧へ戻る</a>
+</div>
+</body>
+</html>

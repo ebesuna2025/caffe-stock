@@ -1,0 +1,24 @@
+<h1>商品一覧</h1>
+<a href="/product_add">新規商品登録</a>
+<table>
+  <tr>
+    <th>ID</th><th>カテゴリー</th><th>品名</th><th>在庫数</th><th>最低在庫数</th><th>登録者</th><th>操作</th>
+  </tr>
+  {% for product in products %}
+  <tr>
+    <td>{{ product.ProductID }}</td>
+    <td>{{ product.ProductCategoryName }}</td>
+    <td>{{ product.ItemName }}</td>
+    <td>{{ product.StockQuantity }}</td>
+    <td>{{ product.MinimumStockQuantity }}</td>
+    <td>{{ product.CreatedBy }}</td>
+    <td>
+      <a href="/product_edit/{{ product.ProductID }}">編集</a>
+      <form action="/product_delete/{{ product.ProductID }}" method="post" style="display:inline;">
+        <button type="submit">削除</button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+<a href="/">在庫一覧へ戻る</a>

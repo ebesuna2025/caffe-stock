@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>商品新規登録</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>商品新規登録</h1>
+  <form method="post">
+    <label>品名:</label>
+    <input type="text" name="item_name" required>
+
+    <label>カテゴリー:</label>
+    <select name="category_id">
+      {% for category in categories %}
+        <option value="{{ category.ProductCategoryID }}">{{ category.ProductCategoryName }}</option>
+      {% endfor %}
+    </select>
+
+    <label>最低在庫数:</label>
+    <input type="number" name="min_stock" required>
+
+    <label>初期在庫数:</label>
+    <input type="number" name="stock" required>
+
+    <label>登録者:</label>
+    <select name="user_id">
+      {% for user in users %}
+        <option value="{{ user.UserID }}">{{ user.UserName }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">登録</button>
+  </form>
+
+  <!-- トップページ（在庫一覧）へ戻るリンクを追加 -->
+  <a href="/" class="button">在庫一覧へ戻る</a>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<h1>商品編集</h1>
+<form method="post">
+  <label>品名:</label>
+  <input type="text" name="item_name" value="{{ product.ItemName }}" required>
+
+  <label>最低在庫数:</label>
+  <input type="number" name="min_stock" value="{{ product.MinimumStockQuantity }}" required>
+
+  <label>在庫数:</label>
+  <input type="number" name="stock" value="{{ product.StockQuantity }}" required>
+
+  <button type="submit">更新</button>
+</form>
+<a href="/products">商品一覧へ戻る</a>

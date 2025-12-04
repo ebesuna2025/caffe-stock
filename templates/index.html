@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>在庫一覧</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+<h1>在庫一覧</h1>
+<table border="1">
+  <tr>
+    <th>ID</th>
+    <th>カテゴリー</th>
+    <th>品名</th>
+    <th>在庫数</th>
+    <th>最低在庫数</th>
+    <th>状態</th>
+  </tr>
+  {% for product in products %}
+    <tr>
+      <td>{{ product.ProductID }}</td>
+      <td>{{ product.ProductCategoryName }}</td>
+      <td>{{ product.ItemName }}</td>
+      <td>{{ product.StockQuantity }}</td>
+      <td>{{ product.MinimumStockQuantity }}</td>
+      <td>
+        {% if product.StockQuantity <= product.MinimumStockQuantity %}
+          <span class="不足">不足</span>
+        {% else %}
+          <span class="十分">十分</span>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+</table>
+
+<!-- ナビゲーションから「商品一覧」リンクを削除 -->
+<nav>
+  <a href="/transaction">入出庫フォームへ</a> |
+  <a href="/product_add">商品新規登録へ</a>
+</nav>
+
+</body>
+</html>
