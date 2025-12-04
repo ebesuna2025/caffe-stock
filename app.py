@@ -59,6 +59,7 @@ def transaction():
 def product_add():
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
+
     if request.method == "POST":
         item_name = request.form["item_name"]
         category_id = request.form["category_id"]
@@ -73,11 +74,21 @@ def product_add():
         conn.commit()
         conn.close()
         return redirect("/")
-    # カテゴリーとユーザー一覧を取得
+
+    # Categoryテーブルから一覧取得
     cur.execute("SELECT ProductCategoryID, ProductCategoryName FROM ProductCategory")
-    categories = cur.fetchall()
+    categories = [
+        {"ProductCategoryID": row[0], "ProductCategoryName": row[1]}
+        for row in cur.fetchall()
+    ]
+
+    # Userテーブルから一覧取得
     cur.execute("SELECT UserID, UserName FROM User")
-    users = cur.fetchall()
+    users = [
+        {"UserID": row[0], "UserName": row[1]}
+        for row in cur.fetchall()
+    ]
+
     conn.close()
     return render_template("product_add.html", categories=categories, users=users)
 
