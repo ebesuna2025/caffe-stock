@@ -11,7 +11,7 @@
     <input type="text" name="item_name" required>
 
     <label>カテゴリー:</label>
-    <select name="category_id">
+    <select name="category_id" required>
       {% for category in categories %}
         <option value="{{ category.ProductCategoryID }}">{{ category.ProductCategoryName }}</option>
       {% endfor %}
@@ -24,7 +24,7 @@
     <input type="number" name="stock" required>
 
     <label>登録者:</label>
-    <select name="user_id">
+    <select name="user_id" required>
       {% for user in users %}
         <option value="{{ user.UserID }}">{{ user.UserName }}</option>
       {% endfor %}
@@ -33,7 +33,6 @@
     <button type="submit">登録</button>
   </form>
 
-  <!-- トップページ（在庫一覧）へ戻るリンクを追加 -->
   <a href="/" class="button">在庫一覧へ戻る</a>
 </body>
 </html>
