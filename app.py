@@ -32,11 +32,12 @@ def index():
 def transaction():
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
+
     if request.method == "POST":
+        user_id = request.form["user_id"]
         product_id = request.form["product_id"]
         transaction_type_id = request.form["transaction_type_id"]
         quantity = int(request.form["quantity"])
-        user_id = request.form["user_id"]
 
         cur.execute("""
             INSERT INTO InventoryTransaction(ProductID, TransactionTypeID, Quantity, UserID, DateTime)
@@ -44,15 +45,29 @@ def transaction():
         """, (product_id, transaction_type_id, quantity, user_id))
         conn.commit()
 
-    # 商品一覧とユーザー一覧を取得してフォームに渡す
-    cur.execute("SELECT ProductID, ItemName FROM Product")
-    products = cur.fetchall()
+    # ユーザー一覧を取得
     cur.execute("SELECT UserID, UserName FROM User")
-    users = cur.fetchall()
+    users = [
+        {"UserID": row[0], "UserName": row[1]}
+        for row in cur.fetchall()
+    ]
+
+    # 商品一覧を取得
+    cur.execute("SELECT ProductID, ItemName FROM Product")
+    products = [
+        {"ProductID": row[0], "ItemName": row[1]}
+        for row in cur.fetchall()
+    ]
+
+    # 区分一覧を取得
     cur.execute("SELECT TransactionTypeID, TransactionTypeName FROM TransactionType")
-    types = cur.fetchall()
+    types = [
+        {"TransactionTypeID": row[0], "TransactionTypeName": row[1]}
+        for row in cur.fetchall()
+    ]
+
     conn.close()
-    return render_template("transaction.html", products=products, users=users, types=types)
+    return render_template("transaction.html", users=users, products=products, types=types)
 
 # 商品新規登録
 @app.route("/product_add", methods=["GET", "POST"])
@@ -113,12 +128,13 @@ def transaction_list():
             "TransactionTypeName": row[2],
             "Quantity": row[3],
             "UserName": row[4],
-            "TransactionDate": row[5],  # 表示用キー名はそのまま
+            "TransactionDate": row[5],
         }
         for row in cur.fetchall()
     ]
     conn.close()
     return render_template("transaction_list.html", transactions=transactions)
+
 
 if __name__ == "__main__":
     app.run(debug=True)
