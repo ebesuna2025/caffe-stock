@@ -36,6 +36,7 @@ def logout():
 # トップページ（在庫一覧）
 @app.route("/")
 def index():
+    # 未ログインならログインページへリダイレクト
     if "user_id" not in session:
         return redirect("/login")
 
