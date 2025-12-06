@@ -3,44 +3,55 @@
 <head>
   <title>在庫一覧</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .nav-links {
+      margin-top: 20px;
+      border-top: 2px solid #007BFF;
+      padding-top: 10px;
+    }
+    .nav-links a {
+      color: #007BFF;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-
 <body>
-<h1>在庫一覧</h1>
-<table border="1">
-  <tr>
-    <th>ID</th>
-    <th>カテゴリー</th>
-    <th>品名</th>
-    <th>在庫数</th>
-    <th>最低在庫数</th>
-    <th>状態</th>
-  </tr>
-  {% for product in products %}
-    <tr>
-      <td>{{ product.ProductID }}</td>
-      <td>{{ product.ProductCategoryName }}</td>
-      <td>{{ product.ItemName }}</td>
-      <td>{{ product.StockQuantity }}</td>
-      <td>{{ product.MinimumStockQuantity }}</td>
-      <td>
-        {% if product.StockQuantity <= product.MinimumStockQuantity %}
-          <span class="不足">不足</span>
-        {% else %}
-          <span class="十分">十分</span>
-        {% endif %}
-      </td>
-    </tr>
-  {% endfor %}
-</table>
+  <h1>在庫一覧</h1>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>カテゴリー</th>
+          <th>品目</th>
+          <th>在庫数</th>
+          <th>最小在庫数</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in products %}
+        <tr>
+          <td>{{ p.ProductID }}</td>
+          <td>{{ p.ProductCategoryName }}</td>
+          <td>{{ p.ItemName }}</td>
+          <td>{{ p.StockQuantity }}</td>
+          <td>{{ p.MinimumStockQuantity }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-<!-- ナビゲーションから「商品一覧」リンクを削除 -->
-<nav>
-  <a href="/transaction">入出庫登録へ</a> |
-  <a href="/product_add">商品新規登録へ</a>
-  <a href="/transaction_list">入出庫履歴一覧へ</a>
-
-</nav>
-
+  <div class="nav-links">
+    <a href="/product_add">商品新規登録</a>
+    <a href="/transaction">入出庫登録</a>
+    <a href="/transaction_list">入出庫履歴一覧</a>
+  </div>
 </body>
 </html>

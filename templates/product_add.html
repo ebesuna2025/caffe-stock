@@ -3,13 +3,27 @@
 <head>
   <title>商品新規登録</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    .nav-links {
+      margin-top: 20px;
+      border-top: 2px solid #007BFF;
+      padding-top: 10px;
+    }
+    .nav-links a {
+      color: #007BFF;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
   <h1>商品新規登録</h1>
   <form method="post">
-    <label>品名:</label>
-    <input type="text" name="item_name" required>
-
     <label>カテゴリー:</label>
     <select name="category_id" required>
       {% for category in categories %}
@@ -17,22 +31,22 @@
       {% endfor %}
     </select>
 
-    <label>最低在庫数:</label>
-    <input type="number" name="min_stock" required>
+    <label>品目名:</label>
+    <input type="text" name="item_name" required>
 
     <label>初期在庫数:</label>
-    <input type="number" name="stock" required>
+    <input type="number" name="stock_quantity" required>
 
-    <label>登録者:</label>
-    <select name="user_id" required>
-      {% for user in users %}
-        <option value="{{ user.UserID }}">{{ user.UserName }}</option>
-      {% endfor %}
-    </select>
+    <label>最小在庫数:</label>
+    <input type="number" name="minimum_stock_quantity" required>
 
     <button type="submit">登録</button>
   </form>
 
-  <a href="/" class="button">在庫一覧へ戻る</a>
+  <div class="nav-links">
+    <a href="/">在庫一覧へ戻る</a>
+    <a href="/transaction">入出庫登録</a>
+    <a href="/transaction_list">入出庫履歴一覧</a>
+  </div>
 </body>
 </html>
