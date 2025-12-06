@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>在庫一覧</title>
+  <title>ユーザー登録</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
@@ -22,39 +22,22 @@
   </style>
 </head>
 <body>
-  <h1>在庫一覧</h1>
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>カテゴリー</th>
-          <th>品目</th>
-          <th>在庫数</th>
-          <th>最小在庫数</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for p in products %}
-        <tr>
-          <td>{{ p.ProductID }}</td>
-          <td>{{ p.ProductCategoryName }}</td>
-          <td>{{ p.ItemName }}</td>
-          <td>{{ p.StockQuantity }}</td>
-          <td>{{ p.MinimumStockQuantity }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <h1>ユーザー登録</h1>
+  <form method="post">
+    <label>ユーザー名:</label>
+    <input type="text" name="username" required>
+
+    <label>パスワード:</label>
+    <input type="password" name="password" required>
+
+    <button type="submit">登録</button>
+  </form>
 
   <div class="nav-links">
+    <a href="/">在庫一覧へ戻る</a>
     <a href="/product_add">商品新規登録</a>
     <a href="/transaction">入出庫登録</a>
     <a href="/transaction_list">入出庫履歴一覧</a>
-    <a href="/user_add">ユーザー登録</a> <!-- ★ここを追加 -->
-
-
   </div>
 </body>
 </html>

@@ -135,6 +135,28 @@ def transaction_list():
     conn.close()
     return render_template("transaction_list.html", transactions=transactions)
 
+#ユーザー登録ページ作成
+import hashlib
+
+@app.route("/user_add", methods=["GET", "POST"])
+def user_add():
+    conn = sqlite3.connect("caffe2.db")
+    cur = conn.cursor()
+
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # パスワードをハッシュ化
+        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+
+        cur.execute("INSERT INTO User(UserName, Password) VALUES (?, ?)", (username, hashed_pw))
+        conn.commit()
+        conn.close()
+        return redirect("/")
+
+    conn.close()
+    return render_template("user_add.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
