@@ -5,15 +5,38 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
+    form {
+      max-width: 400px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;          /* ★幅をフォームいっぱいに広げる */
+      padding: 8px;         /* ★入力欄を広く見やすく */
+      margin-top: 5px;
+      box-sizing: border-box;
+      font-size: 16px;      /* ★文字も見やすく */
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
     .nav-links {
       margin-top: 20px;
       border-top: 2px solid #007BFF;
       padding-top: 10px;
+      text-align: center;
     }
     .nav-links a {
       color: #007BFF;
       text-decoration: none;
-      margin-right: 15px;
+      margin: 0 10px;
       font-weight: bold;
     }
     .nav-links a:hover {
