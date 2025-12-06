@@ -5,41 +5,62 @@ import hashlib
 app = Flask(__name__)
 app.secret_key = "secret_key"  # セッション管理用
 
+def debug_session(prefix=""):
+    # セッション内容と重要キーの有無を見やすく表示
+    print(f"[DEBUG]{prefix} session = {dict(session)} | has_user_id = {'user_id' in session} | has_username = {'username' in session}")
+
 # ログインページ
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
         hashed_pw = hashlib.sha256(password.encode()).hexdigest()
 
+        print(f"[DEBUG] /login POST try username='{username}'")
         conn = sqlite3.connect("caffe2.db")
         cur = conn.cursor()
         cur.execute("SELECT UserID FROM User WHERE UserName=? AND Password=?", (username, hashed_pw))
         user = cur.fetchone()
         conn.close()
+        print(f"[DEBUG] /login DB fetch user={user}")
 
         if user:
             session["user_id"] = user[0]
             session["username"] = username
+            debug_session(" after login")
+            print("[DEBUG] /login success -> redirect '/'")
             return redirect("/")
         else:
+            print("[DEBUG] /login failed (user not found or wrong password)")
             return "ログイン失敗しました"
 
+    # GET
+    debug_session(" GET /login")
     return render_template("login.html")
 
 @app.route("/logout")
 def logout():
+    print("[DEBUG] /logout called -> clearing session ...")
+    debug_session(" before logout")
+    session.pop("user_id", None)
+    session.pop("username", None)
     session.clear()
+    debug_session(" after logout")
+    print("[DEBUG] /logout redirect -> /login")
     return redirect("/login")
 
 # トップページ（在庫一覧）
 @app.route("/")
 def index():
+    print("[DEBUG] GET /")
+    debug_session(" on /")
     # 未ログインならログインページへリダイレクト
     if "user_id" not in session:
+        print("[DEBUG] not logged in -> redirect /login")
         return redirect("/login")
 
+    print("[DEBUG] logged in -> show inventory list")
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
     cur.execute("""
@@ -64,23 +85,28 @@ def index():
 # 入出庫フォーム
 @app.route("/transaction", methods=["GET", "POST"])
 def transaction():
+    print("[DEBUG] /transaction accessed")
+    debug_session(" on /transaction")
     if "user_id" not in session:
+        print("[DEBUG] not logged in -> redirect /login (transaction)")
         return redirect("/login")
 
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
 
     if request.method == "POST":
-        user_id = request.form["user_id"]
-        product_id = request.form["product_id"]
-        transaction_type_id = request.form["transaction_type_id"]
-        quantity = int(request.form["quantity"])
+        user_id = request.form.get("user_id")
+        product_id = request.form.get("product_id")
+        transaction_type_id = request.form.get("transaction_type_id")
+        quantity = int(request.form.get("quantity", "0"))
 
+        print(f"[DEBUG] /transaction POST user_id={user_id}, product_id={product_id}, type={transaction_type_id}, qty={quantity}")
         cur.execute("""
             INSERT INTO InventoryTransaction(ProductID, TransactionTypeID, Quantity, UserID, DateTime)
             VALUES (?, ?, ?, ?, datetime('now'))
         """, (product_id, transaction_type_id, quantity, user_id))
         conn.commit()
+        print("[DEBUG] /transaction POST committed")
 
     cur.execute("SELECT UserID, UserName FROM User")
     users = [{"UserID": row[0], "UserName": row[1]} for row in cur.fetchall()]
@@ -97,25 +123,30 @@ def transaction():
 # 商品新規登録
 @app.route("/product_add", methods=["GET", "POST"])
 def product_add():
+    print("[DEBUG] /product_add accessed")
+    debug_session(" on /product_add")
     if "user_id" not in session:
+        print("[DEBUG] not logged in -> redirect /login (product_add)")
         return redirect("/login")
 
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
 
     if request.method == "POST":
-        item_name = request.form["item_name"]
-        category_id = request.form["category_id"]
-        min_stock = request.form["min_stock"]
-        stock = request.form["stock"]
-        user_id = request.form["user_id"]
+        item_name = request.form.get("item_name")
+        category_id = request.form.get("category_id")
+        min_stock = request.form.get("min_stock")
+        stock = request.form.get("stock")
+        user_id = request.form.get("user_id")
 
+        print(f"[DEBUG] /product_add POST item='{item_name}', category_id={category_id}, min_stock={min_stock}, stock={stock}, user_id={user_id}")
         cur.execute("""
             INSERT INTO Product(ItemName, ProductCategoryID, MinimumStockQuantity, StockQuantity, UserID)
             VALUES (?, ?, ?, ?, ?)
         """, (item_name, category_id, min_stock, stock, user_id))
         conn.commit()
         conn.close()
+        print("[DEBUG] /product_add POST committed -> redirect '/'")
         return redirect("/")
 
     cur.execute("SELECT ProductCategoryID, ProductCategoryName FROM ProductCategory")
@@ -130,7 +161,10 @@ def product_add():
 # 入出庫履歴一覧
 @app.route("/transaction_list")
 def transaction_list():
+    print("[DEBUG] /transaction_list accessed")
+    debug_session(" on /transaction_list")
     if "user_id" not in session:
+        print("[DEBUG] not logged in -> redirect /login (transaction_list)")
         return redirect("/login")
 
     conn = sqlite3.connect("caffe2.db")
@@ -161,20 +195,25 @@ def transaction_list():
 # ユーザー登録ページ
 @app.route("/user_add", methods=["GET", "POST"])
 def user_add():
+    print("[DEBUG] /user_add accessed")
+    debug_session(" on /user_add")
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
         hashed_pw = hashlib.sha256(password.encode()).hexdigest()
 
+        print(f"[DEBUG] /user_add POST create username='{username}'")
         conn = sqlite3.connect("caffe2.db")
         cur = conn.cursor()
         cur.execute("INSERT INTO User(UserName, Password) VALUES (?, ?)", (username, hashed_pw))
         conn.commit()
         conn.close()
+        print("[DEBUG] /user_add POST committed -> redirect '/'")
         return redirect("/")
 
     return render_template("user_add.html")
 
 # アプリ起動
 if __name__ == "__main__":
+    print("[DEBUG] app starting with debug=True")
     app.run(debug=True)
