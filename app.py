@@ -1,11 +1,44 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 import sqlite3
+import hashlib
 
 app = Flask(__name__)
+app.secret_key = "secret_key"  # セッション管理用
+
+# ログインページ
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        hashed_pw = hashlib.sha256(password.encode()).hexdigest()
+
+        conn = sqlite3.connect("caffe2.db")
+        cur = conn.cursor()
+        cur.execute("SELECT UserID FROM User WHERE UserName=? AND Password=?", (username, hashed_pw))
+        user = cur.fetchone()
+        conn.close()
+
+        if user:
+            session["user_id"] = user[0]
+            session["username"] = username
+            return redirect("/")
+        else:
+            return "ログイン失敗しました"
+
+    return render_template("login.html")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
 
 # トップページ（在庫一覧）
 @app.route("/")
 def index():
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
     cur.execute("""
@@ -30,6 +63,9 @@ def index():
 # 入出庫フォーム
 @app.route("/transaction", methods=["GET", "POST"])
 def transaction():
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
 
@@ -45,26 +81,14 @@ def transaction():
         """, (product_id, transaction_type_id, quantity, user_id))
         conn.commit()
 
-    # ユーザー一覧を取得
     cur.execute("SELECT UserID, UserName FROM User")
-    users = [
-        {"UserID": row[0], "UserName": row[1]}
-        for row in cur.fetchall()
-    ]
+    users = [{"UserID": row[0], "UserName": row[1]} for row in cur.fetchall()]
 
-    # 商品一覧を取得
     cur.execute("SELECT ProductID, ItemName FROM Product")
-    products = [
-        {"ProductID": row[0], "ItemName": row[1]}
-        for row in cur.fetchall()
-    ]
+    products = [{"ProductID": row[0], "ItemName": row[1]} for row in cur.fetchall()]
 
-    # 区分一覧を取得
     cur.execute("SELECT TransactionTypeID, TransactionTypeName FROM TransactionType")
-    types = [
-        {"TransactionTypeID": row[0], "TransactionTypeName": row[1]}
-        for row in cur.fetchall()
-    ]
+    types = [{"TransactionTypeID": row[0], "TransactionTypeName": row[1]} for row in cur.fetchall()]
 
     conn.close()
     return render_template("transaction.html", users=users, products=products, types=types)
@@ -72,6 +96,9 @@ def transaction():
 # 商品新規登録
 @app.route("/product_add", methods=["GET", "POST"])
 def product_add():
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
 
@@ -90,19 +117,11 @@ def product_add():
         conn.close()
         return redirect("/")
 
-    # Categoryテーブルから一覧取得
     cur.execute("SELECT ProductCategoryID, ProductCategoryName FROM ProductCategory")
-    categories = [
-        {"ProductCategoryID": row[0], "ProductCategoryName": row[1]}
-        for row in cur.fetchall()
-    ]
+    categories = [{"ProductCategoryID": row[0], "ProductCategoryName": row[1]} for row in cur.fetchall()]
 
-    # Userテーブルから一覧取得
     cur.execute("SELECT UserID, UserName FROM User")
-    users = [
-        {"UserID": row[0], "UserName": row[1]}
-        for row in cur.fetchall()
-    ]
+    users = [{"UserID": row[0], "UserName": row[1]} for row in cur.fetchall()]
 
     conn.close()
     return render_template("product_add.html", categories=categories, users=users)
@@ -110,6 +129,9 @@ def product_add():
 # 入出庫履歴一覧
 @app.route("/transaction_list")
 def transaction_list():
+    if "user_id" not in session:
+        return redirect("/login")
+
     conn = sqlite3.connect("caffe2.db")
     cur = conn.cursor()
     cur.execute("""
@@ -135,28 +157,23 @@ def transaction_list():
     conn.close()
     return render_template("transaction_list.html", transactions=transactions)
 
-#ユーザー登録ページ作成
-import hashlib
-
+# ユーザー登録ページ
 @app.route("/user_add", methods=["GET", "POST"])
 def user_add():
-    conn = sqlite3.connect("caffe2.db")
-    cur = conn.cursor()
-
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
-        # パスワードをハッシュ化
         hashed_pw = hashlib.sha256(password.encode()).hexdigest()
 
+        conn = sqlite3.connect("caffe2.db")
+        cur = conn.cursor()
         cur.execute("INSERT INTO User(UserName, Password) VALUES (?, ?)", (username, hashed_pw))
         conn.commit()
         conn.close()
         return redirect("/")
 
-    conn.close()
     return render_template("user_add.html")
 
+# アプリ起動
 if __name__ == "__main__":
     app.run(debug=True)
