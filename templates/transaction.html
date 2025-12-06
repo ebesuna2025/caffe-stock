@@ -1,41 +1,62 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>入出庫フォーム</title>
+  <title>入出庫登録</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    /* 青ライン付きナビゲーションリンク */
+    .nav-links {
+      margin-top: 20px;
+      border-top: 2px solid #007BFF; /* 青ライン */
+      padding-top: 10px;
+    }
+    .nav-links a {
+      color: #007BFF;
+      text-decoration: none;
+      margin-right: 15px;
+      font-weight: bold;
+    }
+    .nav-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
 <body>
-<h1 style="text-align:center;">入出庫登録</h1>
-<form method="post">
-  <label>ユーザー:</label>
-  <select name="user_id">
-    {% for user in users %}
-      <option value="{{ user.UserID }}">{{ user.UserName }}</option>
-    {% endfor %}
-  </select>
+  <h1>入出庫登録</h1>
+  <form method="post">
+    <label>ユーザー:</label>
+    <select name="user_id" required>
+      {% for user in users %}
+        <option value="{{ user.UserID }}">{{ user.UserName }}</option>
+      {% endfor %}
+    </select>
 
-  <label>品目:</label>
-  <select name="product_id">
-    {% for product in products %}
-      <option value="{{ product.ProductID }}">{{ product.ItemName }}</option>
-    {% endfor %}
-  </select>
+    <label>品目:</label>
+    <select name="product_id" required>
+      {% for product in products %}
+        <option value="{{ product.ProductID }}">{{ product.ItemName }}</option>
+      {% endfor %}
+    </select>
 
-  <label>区分:</label>
-  <select name="transaction_type">
-    {% for type in types %}
-      <option value="{{ type.TransactionTypeID }}">{{ type.TransactionTypeName }}</option>
-    {% endfor %}
-  </select>
+    <label>区分:</label>
+    <select name="transaction_type_id" required>
+      {% for type in types %}
+        <option value="{{ type.TransactionTypeID }}">{{ type.TransactionTypeName }}</option>
+      {% endfor %}
+    </select>
 
-  <label>数量:</label>
-  <input type="number" name="quantity">
+    <label>数量:</label>
+    <input type="number" name="quantity" required>
 
-  <button type="submit">登録</button>
-</form>
+    <button type="submit">登録</button>
+  </form>
 
-<div style="text-align:center;">
-  <a href="/">在庫一覧へ戻る</a>
-</div>
+  <!-- 青ライン付きリンク -->
+  <div class="nav-links">
+    <a href="/">在庫一覧へ戻る</a>
+    <a href="/product_add">商品新規登録</a>
+    <a href="/transaction_list">入出庫履歴一覧</a>
+  </div>
 </body>
 </html>
